@@ -1,0 +1,27 @@
+# NOTE: currently azure-sdk-actions only hosts check enforcer code.
+# If further functionality is added, this name should be updated to reflect
+# the more generic behavior
+name: Comment Processor
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  comment-handler:
+    permissions:
+      pull-requests: write # to read pull requests and write comments (azure/azure-sdk-actions)
+    name: Handle ${{ github.event_name }} ${{ github.event.action }} event
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process comment
+        shell: pwsh
+        run: |
+          $payload = echo $PAYLOAD | ConvertFrom-Json -AsHashtable
+        env:
+          PAYLOAD: ${{ toJson(github.event) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
